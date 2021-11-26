@@ -1,13 +1,15 @@
 # Polynome.py
 
-from Monome import*
+from Monome import *
+
 
 class Polynome:
     def __init__(self, equation: str):
         self.equation = equation
+
+        self.puissancesEtCoeffs = {}
+
         self.monomes = ()
-        self.coeffs = ()
-        self.puissances = ()
         self.racineEvidente = 0
         self.polynomeFactorise = ''
 
@@ -15,27 +17,22 @@ class Polynome:
 
     def resetVal(self):
         self.monomes = ()
-        self.coeffs = ()
-        self.puissances = ()
+        self.puissancesEtCoeffs = {}
         self.racineEvidente = 0
 
     def afficheMonomes(self):
-        print("Les monômes sont: ")
+        print("Les monômes sont: ", end='')
         for monome in self.monomes:
             print(monome, end=', ')
         print()
 
-    def afficheCoeffs(self):
-        print("Les coefficients sont: ")
-        for monome in self.monomes:
-            print(monome.coeff, end=', ')
-        print()
+    def affichePuissanceEtCoeff(self):
+        print("Les puissances et les coeffs: ", self.puissancesEtCoeffs)
 
-    def affichePuissances(self):
-        print("Les puissances sont: ")
+    def trouvePuissancesEtCoeff(self):
         for monome in self.monomes:
-            print(monome.puissance, end=', ')
-        print()
+            self.puissancesEtCoeffs[monome.puissance] = monome.coeff
+        self.affichePuissanceEtCoeff()
 
     def trouveMonomes(self):
         """Cherche les monômes de l'équation"""
@@ -54,39 +51,43 @@ class Polynome:
         self.monomes += Monome(aAjouter),
         self.afficheMonomes()
 
-    def trouveCoeffs(self):
-        """Cherche les coefficients pour chaque monôme"""
-        for monome in self.monomes:
-            self.coeffs += monome.coeff,
-        self.afficheCoeffs()
-
-    def trouvePuissances(self):
-        for monome in self.monomes:
-            if monome.puissance is not None:
-                self.puissances += monome.puissance,
-        self.affichePuissances()
+    def isSecondDegre(self):
+        for puissance in self.puissancesEtCoeffs.keys():
+            if puissance is not None and puissance > 2:
+                return False
+        return True
 
     def isStandard(self):
-        if len(self.puissances) != len(self.monomes):
-            return False
-        else:
-            pass
+        puissance = self.monomes[0].puissance
+        for monome in self.monomes:
+            if monome != self.monomes[0]:
+                if (monome.puissance is not None) and (monome.puissance != puissance - 1):
+                    if puissance - 1 not in self.puissances:
+                        self.puissances += puissance - 1,
+                        self.coeffs += 0,
+                    return False
+                else:
+                    puissance = monome.puissance
+        return True
 
     def standardise(self):
-        for i in range(len(self.monomes), 0, -1):
+        while not self.isStandard():
             pass
 
     def trouveRacineEvidente(self):
         """Trouve une racine évidente"""
+        coeffs = tuple(self.puissancesEtCoeffs.values())
+        puissances = tuple(self.puissancesEtCoeffs.keys())
+
         equation = ''
         for i in range(len(self.monomes)):
-            try:
-                if self.coeffs[i] > 0:
-                    equation += '+' + str(self.coeffs[i]) + 'x^' + str(self.puissances[i])
+            if puissances[i] is not None:
+                if coeffs[i] > 0:
+                    equation += '+' + str(coeffs[i]) + 'x^' + str(puissances[i])
                 else:
-                    equation += str(self.coeffs[i]) + 'x^' + str(self.puissances[i])
-            except IndexError:
-                equation += str(self.coeffs[i])
+                    equation += str(coeffs[i]) + 'x^' + str(puissances[i])
+            else:
+                equation += str(coeffs[i])
         for i in range(0, 100):
             equa = equation.replace('x', "*(" + str(i) + ')').replace('^', '**')
             resEqua = eval(equa)
@@ -96,24 +97,25 @@ class Polynome:
         print("La racine évidente trouvée est: ", self.racineEvidente)
 
     def resolutionSecondDegre(self):
+        coeffs = tuple(self.puissancesEtCoeffs.values())
         try:
-            a = self.coeffs[0]
+            a = coeffs[0]
         except IndexError:
             a = 0
         try:
-            b = self.coeffs[1]
+            b = coeffs[1]
         except IndexError:
             b = 0
         try:
-            c = self.coeffs[2]
+            c = coeffs[2]
         except IndexError:
             c = 0
-        delta = ((b**2) - (4*a*c))
+        delta = ((b ** 2) - (4 * a * c))
 
         print("Delta vaut: ", delta)
 
         if delta == 0:
-            x0 = -b/(2 * a)
+            x0 = -b / (2 * a)
             self.polynomeFactorise += str(a) + '(x' + str(-x0) + ')'
         elif delta < 0:
             self.polynomeFactorise += '(' + self.equation + ')'
@@ -123,19 +125,20 @@ class Polynome:
             self.polynomeFactorise += str(a) + '(x + ' + str(-x1) + ')' + '(x + ' + str(-x2) + ')'
 
     def coeffsToEqua(self, coeffs):
+        puissances = tuple(self.puissancesEtCoeffs.keys())
         res = ''
         for i in range(len(coeffs)):
             try:
                 if coeffs[i] < 0:
                     if coeffs[i] != 0:
-                        if int(self.puissances[i])-1 != 0:
-                            res += str(coeffs[i]) + 'x^' + str(int(self.puissances[i])-1)
+                        if int(puissances[i]) - 1 != 0:
+                            res += str(coeffs[i]) + 'x^' + str(int(puissances[i]) - 1)
                         else:
                             res += str(coeffs[i])
                 else:
                     if coeffs[i] != 0:
-                        if int(self.puissances[i])-1 != 0:
-                            res += '+' + str(coeffs[i]) + 'x^' + str(int(self.puissances[i])-1)
+                        if int(puissances[i]) - 1 != 0:
+                            res += '+' + str(coeffs[i]) + 'x^' + str(int(puissances[i]) - 1)
                         else:
                             res += '+' + str(coeffs[i])
             except IndexError:
@@ -147,17 +150,19 @@ class Polynome:
             print("L'équation est: ", self.equation)
             self.resetVal()
             self.trouveMonomes()
-            self.trouvePuissances()
-            self.standardise()
-            self.trouveCoeffs()  # TODO mettre sous forme standard avant ça
-            if max(self.puissances) == 2:
+            self.trouvePuissancesEtCoeff()
+            print("isStandard? ", self.isStandard())
+            # self.standardise()
+
+            if self.isSecondDegre():
                 break
 
+            coeffs = tuple(self.puissancesEtCoeffs.values())
             self.trouveRacineEvidente()
 
             res = ()
-            for i in range(len(self.coeffs)):
-                coeff = self.coeffs[i]
+            for i in range(len(coeffs)):
+                coeff = coeffs[i]
                 if i == 0:
                     res += coeff,
                 else:
