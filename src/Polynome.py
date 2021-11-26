@@ -57,22 +57,18 @@ class Polynome:
                 return False
         return True
 
-    def isStandard(self):
-        puissance = self.monomes[0].puissance
+    def trouveDegre(self):
+        plusGrand = self.monomes[0].puissance
         for monome in self.monomes:
-            if monome != self.monomes[0]:
-                if (monome.puissance is not None) and (monome.puissance != puissance - 1):
-                    if puissance - 1 not in self.puissances:
-                        self.puissances += puissance - 1,
-                        self.coeffs += 0,
-                    return False
-                else:
-                    puissance = monome.puissance
-        return True
+            if monome.puissance is not None and monome.puissance > plusGrand:
+                plusGrand = monome.puissance
+        return plusGrand
 
     def standardise(self):
-        while not self.isStandard():
-            pass
+        degre = self.trouveDegre()
+        for i in range(degre, 1, -1):
+            if i not in self.puissancesEtCoeffs.keys():
+                self.puissancesEtCoeffs[i] = 0
 
     def trouveRacineEvidente(self):
         """Trouve une racine évidente"""
@@ -151,8 +147,8 @@ class Polynome:
             self.resetVal()
             self.trouveMonomes()
             self.trouvePuissancesEtCoeff()
-            print("isStandard? ", self.isStandard())
-            # self.standardise()
+
+            self.standardise()
 
             if self.isSecondDegre():
                 break
