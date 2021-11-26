@@ -62,7 +62,8 @@ class Polynome:
 
     def trouvePuissances(self):
         for monome in self.monomes:
-            self.puissances += monome.puissance,
+            if monome.puissance is not None:
+                self.puissances += monome.puissance,
         self.affichePuissances()
 
     def isStandard(self):
@@ -119,7 +120,7 @@ class Polynome:
         else:
             x1 = (-b - delta ** 0.5) / (2 * a)
             x2 = (-b + delta ** 0.5) / (2 * a)
-            self.polynomeFactorise += str(a) + '(x+' + str(-x1) + ')' + '(x+' + str(-x2) + ')'
+            self.polynomeFactorise += str(a) + '(x + ' + str(-x1) + ')' + '(x + ' + str(-x2) + ')'
 
     def coeffsToEqua(self, coeffs):
         res = ''

@@ -20,7 +20,7 @@ class Monome:
                     return int(res)
             elif elem not in signes:
                 res += elem
-        return self.equation
+        return int(self.equation)
 
     def getPuissance(self):
         res = ''
