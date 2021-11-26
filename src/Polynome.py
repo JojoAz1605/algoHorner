@@ -1,5 +1,7 @@
 # Polynome.py
 
+from Monome import*
+
 class Polynome:
     def __init__(self, equation: str):
         self.equation = equation
@@ -17,6 +19,23 @@ class Polynome:
         self.puissances = ()
         self.racineEvidente = 0
 
+    def afficheMonomes(self):
+        print("Les monômes sont: ")
+        for monome in self.monomes:
+            print(monome, end=', ')
+        print()
+
+    def afficheCoeffs(self):
+        print("Les coefficients sont: ")
+        for monome in self.monomes:
+            print(monome.coeff, end=', ')
+        print()
+
+    def affichePuissances(self):
+        print("Les puissances sont: ")
+        for monome in self.monomes:
+            print(monome.puissance, end=', ')
+        print()
 
     def trouveMonomes(self):
         """Cherche les monômes de l'équation"""
@@ -28,43 +47,33 @@ class Polynome:
                 if len(aAjouter) == 0:
                     aAjouter += elem
                 elif aAjouter != '':
-                    self.monomes += aAjouter,
+                    self.monomes += Monome(aAjouter),
                     aAjouter = elem
             else:
                 aAjouter += elem
-        self.monomes += aAjouter,
-        print("Les monômes sont: ", self.monomes)
+        self.monomes += Monome(aAjouter),
+        self.afficheMonomes()
 
     def trouveCoeffs(self):
         """Cherche les coefficients pour chaque monôme"""
-        aAjouter = ''
         for monome in self.monomes:
-            aAjouter += monome[0]  # signe
-            if monome[1] == 'x':  # le cas 1x <=> x
-                aAjouter += '1'
-            else:
-                for i in range(1, len(monome)):
-                    elem = monome[i]
-                    if elem == 'x':
-                        break
-                    else:
-                        aAjouter += elem
-            self.coeffs += int(aAjouter),
-            aAjouter = ''
-        print("Les coefficients sont: ", self.coeffs)
+            self.coeffs += monome.coeff,
+        self.afficheCoeffs()
 
     def trouvePuissances(self):
         for monome in self.monomes:
-            for i in range(len(monome)):
-                if monome[i] == "x":
-                    try:
-                        if monome[i + 1] == "^":
-                            self.puissances += int(monome[i + 2]),
-                        else:
-                            self.puissances += 1,
-                    except IndexError:
-                        self.puissances += 1,
-        print("Les puissances sont: ", self.puissances)
+            self.puissances += monome.puissance,
+        self.affichePuissances()
+
+    def isStandard(self):
+        if len(self.puissances) != len(self.monomes):
+            return False
+        else:
+            pass
+
+    def standardise(self):
+        for i in range(len(self.monomes), 0, -1):
+            pass
 
     def trouveRacineEvidente(self):
         """Trouve une racine évidente"""
@@ -138,6 +147,7 @@ class Polynome:
             self.resetVal()
             self.trouveMonomes()
             self.trouvePuissances()
+            self.standardise()
             self.trouveCoeffs()  # TODO mettre sous forme standard avant ça
             if max(self.puissances) == 2:
                 break
@@ -158,4 +168,4 @@ class Polynome:
             self.coeffsToEqua(res)
 
         self.resolutionSecondDegre()
-        print(self.polynomeFactorise)
+        print("Le polynôme factorisé est: ", self.polynomeFactorise)
