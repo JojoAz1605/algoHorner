@@ -93,19 +93,9 @@ class Polynome:
         print("La racine évidente trouvée est: ", self.racineEvidente)
 
     def resolutionSecondDegre(self):
-        coeffs = tuple(self.puissancesEtCoeffs.values())
-        try:
-            a = coeffs[0]
-        except IndexError:
-            a = 0
-        try:
-            b = coeffs[1]
-        except IndexError:
-            b = 0
-        try:
-            c = coeffs[2]
-        except IndexError:
-            c = 0
+        a = self.puissancesEtCoeffs[2]
+        b = self.puissancesEtCoeffs[1]
+        c = self.puissancesEtCoeffs[None]
         delta = ((b ** 2) - (4 * a * c))
 
         print("Delta vaut: ", delta)
@@ -116,29 +106,33 @@ class Polynome:
         elif delta < 0:
             self.polynomeFactorise += '(' + self.equation + ')'
         else:
-            x1 = (-b - delta ** 0.5) / (2 * a)
-            x2 = (-b + delta ** 0.5) / (2 * a)
+            x1 = (-b - (delta ** 0.5)) / (2 * a)
+            x2 = (-b + (delta ** 0.5)) / (2 * a)
             self.polynomeFactorise += str(a) + '(x + ' + str(-x1) + ')' + '(x + ' + str(-x2) + ')'
 
     def coeffsToEqua(self, coeffs):
+        # TODO à réécrire pour le passage au dico
         puissances = tuple(self.puissancesEtCoeffs.keys())
         res = ''
-        for i in range(len(coeffs)):
-            try:
-                if coeffs[i] < 0:
-                    if coeffs[i] != 0:
+        for i in range(len(coeffs) - 1):
+            if coeffs[i] < 0:
+                if coeffs[i] != 0:
+                    try:
                         if int(puissances[i]) - 1 != 0:
                             res += str(coeffs[i]) + 'x^' + str(int(puissances[i]) - 1)
                         else:
                             res += str(coeffs[i])
-                else:
-                    if coeffs[i] != 0:
+                    except TypeError:
+                        res += str(coeffs[i])
+            else:
+                if coeffs[i] != 0:
+                    try:
                         if int(puissances[i]) - 1 != 0:
                             res += '+' + str(coeffs[i]) + 'x^' + str(int(puissances[i]) - 1)
                         else:
                             res += '+' + str(coeffs[i])
-            except IndexError:
-                pass
+                    except TypeError:
+                        res += '+' + str(coeffs[i])
         self.equation = res
 
     def horner(self):
@@ -155,6 +149,8 @@ class Polynome:
 
             coeffs = tuple(self.puissancesEtCoeffs.values())
             self.trouveRacineEvidente()
+
+            # TODO à réécrire pour le passage au dico
 
             res = ()
             for i in range(len(coeffs)):
