@@ -53,11 +53,15 @@ class Polynome:
         return True
 
     def trouveDegre(self):
-        plusGrand = self.monomes[0].puissance
-        for monome in self.monomes:
-            if monome.puissance is not None and monome.puissance > plusGrand:
-                plusGrand = monome.puissance
-        return plusGrand
+        puissances = tuple(self.puissancesEtCoeffs)
+        res = puissances[0]
+        for elem in puissances:
+            try:
+                if int(elem) > res:
+                    res = int(elem)
+            except TypeError:
+                pass
+        return res
 
     def standardise(self):
         degre = self.trouveDegre()
@@ -116,6 +120,18 @@ class Polynome:
             x2 = (-b + (delta ** 0.5)) / (2 * a)
             self.polynomeFactorise += str(a) + '(x + ' + str(-x1) + ')' + '(x + ' + str(-x2) + ')'
 
+    def puissancesEtCoeffs2Equa(self):
+        equa = ''
+        for puissance in self.puissancesEtCoeffs:
+            if puissance is None:
+                if self.puissancesEtCoeffs[puissance] > 0:
+                    equa += '+' + str(self.puissancesEtCoeffs[None])
+                else:
+                    equa += str(self.puissancesEtCoeffs[None])
+            else:
+                equa += str(self.puissancesEtCoeffs[puissance]) + 'x^' + str(puissance)
+        self.equation = equa
+
     def horner(self):
         while True:
             if self.equation != '':
@@ -148,5 +164,6 @@ class Polynome:
             self.puissancesEtCoeffs = res
             self.equation = ''
 
+        self.puissancesEtCoeffs2Equa()
         self.resolutionSecondDegre()
         print("Le polynôme factorisé est: ", self.polynomeFactorise)
