@@ -15,11 +15,6 @@ class Polynome:
 
         self.horner()
 
-    def resetVal(self):
-        self.monomes = ()
-        self.puissancesEtCoeffs = {}
-        self.racineEvidente = 0
-
     def afficheMonomes(self):
         print("Les monômes sont: ", end='')
         for monome in self.monomes:
@@ -69,6 +64,7 @@ class Polynome:
         for i in range(degre, 1, -1):
             if i not in self.puissancesEtCoeffs.keys():
                 self.puissancesEtCoeffs[i] = 0
+                print(i, "n'est pas présent, rajout.\nLe dico maintenant: ", self.puissancesEtCoeffs)
 
     def trouveRacineEvidente(self):
         """Trouve une racine évidente"""
@@ -84,7 +80,7 @@ class Polynome:
                     equation += str(coeffs[i]) + 'x^' + str(puissances[i])
             else:
                 equation += str(coeffs[i])
-        for i in range(0, 100):
+        for i in range(-1000, 1000):
             equa = equation.replace('x', "*(" + str(i) + ')').replace('^', '**')
             resEqua = eval(equa)
             if resEqua == 0:
@@ -93,9 +89,19 @@ class Polynome:
         print("La racine évidente trouvée est: ", self.racineEvidente)
 
     def resolutionSecondDegre(self):
-        a = self.puissancesEtCoeffs[2]
-        b = self.puissancesEtCoeffs[1]
-        c = self.puissancesEtCoeffs[None]
+        abc = ()
+        print(self.puissancesEtCoeffs)
+        for i in range(2, -1, -1):
+            try:
+                if i != 0:
+                    abc += self.puissancesEtCoeffs[i],
+                else:
+                    abc += self.puissancesEtCoeffs[None],
+            except KeyError:
+                abc += 0,
+        a = abc[0]
+        b = abc[1]
+        c = abc[2]
         delta = ((b ** 2) - (4 * a * c))
 
         print("Delta vaut: ", delta)
@@ -110,60 +116,37 @@ class Polynome:
             x2 = (-b + (delta ** 0.5)) / (2 * a)
             self.polynomeFactorise += str(a) + '(x + ' + str(-x1) + ')' + '(x + ' + str(-x2) + ')'
 
-    def coeffsToEqua(self, coeffs):
-        # TODO à réécrire pour le passage au dico
-        puissances = tuple(self.puissancesEtCoeffs.keys())
-        res = ''
-        for i in range(len(coeffs) - 1):
-            if coeffs[i] < 0:
-                if coeffs[i] != 0:
-                    try:
-                        if int(puissances[i]) - 1 != 0:
-                            res += str(coeffs[i]) + 'x^' + str(int(puissances[i]) - 1)
-                        else:
-                            res += str(coeffs[i])
-                    except TypeError:
-                        res += str(coeffs[i])
-            else:
-                if coeffs[i] != 0:
-                    try:
-                        if int(puissances[i]) - 1 != 0:
-                            res += '+' + str(coeffs[i]) + 'x^' + str(int(puissances[i]) - 1)
-                        else:
-                            res += '+' + str(coeffs[i])
-                    except TypeError:
-                        res += '+' + str(coeffs[i])
-        self.equation = res
-
     def horner(self):
         while True:
-            print("L'équation est: ", self.equation)
-            self.resetVal()
-            self.trouveMonomes()
-            self.trouvePuissancesEtCoeff()
-
-            self.standardise()
+            if self.equation != '':
+                print("L'équation est: ", self.equation)
+                self.trouveMonomes()
+                self.trouvePuissancesEtCoeff()
+                self.standardise()
 
             if self.isSecondDegre():
                 break
 
-            coeffs = tuple(self.puissancesEtCoeffs.values())
             self.trouveRacineEvidente()
 
-            # TODO à réécrire pour le passage au dico
-
-            res = ()
-            for i in range(len(coeffs)):
-                coeff = coeffs[i]
-                if i == 0:
-                    res += coeff,
+            res = {}
+            for i in range(self.trouveDegre(), 0, -1):
+                puissance = i
+                coeff = self.puissancesEtCoeffs[puissance]
+                if puissance == self.trouveDegre():
+                    res[puissance - 1] = coeff
                 else:
-                    mult = self.racineEvidente * res[-1]
+                    mult = self.racineEvidente * res[i]
                     add = mult + coeff
-                    res += add,
+                    if i - 1 != 0:
+                        res[i - 1] = add
+                    else:
+                        res[None] = add
+
             print("Après un passage par le tableau, on trouve ces coefficients là: ", res)
             self.polynomeFactorise += str('(x + ' + str(-int(self.racineEvidente)) + ')')
-            self.coeffsToEqua(res)
+            self.puissancesEtCoeffs = res
+            self.equation = ''
 
         self.resolutionSecondDegre()
         print("Le polynôme factorisé est: ", self.polynomeFactorise)
